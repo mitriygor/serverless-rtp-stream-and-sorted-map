@@ -1,0 +1,49 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "getAppendsLogs",
+  "States": {
+    "getAppendsLogs": {
+      "Type": "Task",
+      "Resource": ":::",
+      "TimeoutSeconds": 30,
+      "ResultPath": "$.results.logs",
+      "OutputPath": "$.results",
+      "Next": "validateAppends "
+    },
+    "validateAppends ": {
+      "Type": "Task",
+      "Resource": ":::",
+      "TimeoutSeconds": 30,
+      "ResultPath": "$.results.isValid",
+      "OutputPath": "$.results",
+      "Next": "isValid"
+    },
+    "isValid": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.results.isValid",
+          "BooleanEquals": false,
+          "Next": "createFile"
+        }
+      ],
+      "Default": "returnSuccess"
+    },
+    "returnSuccess": {
+      "Type": "Task",
+      "Resource": ":::",
+      "TimeoutSeconds": 30,
+      "ResultPath": "$.results.deletionStatus",
+      "OutputPath": "$.results",
+      "End": true
+    },
+    "createFile": {
+      "Type": "Task",
+      "Resource": ":::",
+      "TimeoutSeconds": 300,
+      "ResultPath": "$.results.deletionStatus",
+      "OutputPath": "$.results",
+      "End": true
+    }
+  }
+}

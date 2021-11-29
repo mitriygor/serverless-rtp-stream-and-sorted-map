@@ -1,0 +1,26 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "deleteTable",
+  "States": {
+    "deleteTable": {
+      "Type": "Task",
+      "Resource": ":::",
+      "TimeoutSeconds": 30,
+      "ResultPath": "$.results.tableName",
+      "Next": "wait30Seconds"
+    },
+    "wait30Seconds": {
+      "Type": "Wait",
+      "Seconds": 30,
+      "Next": "createTable"
+    },
+    "createTable": {
+      "Type": "Task",
+      "Resource": ":::",
+      "TimeoutSeconds": 30,
+      "ResultPath": "$.results.tableName",
+      "OutputPath": "$.results",
+      "End": true
+    }
+  }
+}
