@@ -1,7 +1,7 @@
 // This file is just here to demonstrate how you can add unit tests for your
 // code, should you wish to do so.
 
-import { RTPPacket } from "./rtp-packet";
+import { RTPPacket } from "../../models/rtp-packet";
 
 test("sequence number", () => {
   const packet = new RTPPacket();

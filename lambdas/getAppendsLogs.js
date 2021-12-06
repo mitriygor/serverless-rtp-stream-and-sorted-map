@@ -1,3 +1,8 @@
+/**
+ * The lambda logs to the DynamoDB appended packets
+ *
+ * */
+
 const AWS = require('aws-sdk');
 AWS.config.update({region: 'us-east-1'});
 
@@ -18,19 +23,16 @@ exports.handler = async (event, context) => {
 
     logs = logs.Items.map(log => {
       return {
-        sequenceNumber: parseInt(log.sequenceNumber.N, 10),
-        timestamp: parseInt(log.timestamp.N, 10)
+        sequenceNumber: parseInt(log.sequenceNumber.N, 10), timestamp: parseInt(log.timestamp.N, 10)
       };
     });
     return {
-      statusCode: 200,
-      body: logs
+      statusCode: 200, body: logs
     };
   } catch (err) {
     console.error('getAppendsLogs:catch:err', err);
     return {
-      statusCode: 400,
-      error: err
+      statusCode: 400, error: err
     };
   }
 };

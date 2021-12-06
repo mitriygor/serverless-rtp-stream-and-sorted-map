@@ -1,3 +1,8 @@
+/**
+ * The lambdas provides basic validation of appended packets based on their sequence numbers
+ *
+ * */
+
 exports.handler = async (event) => {
 
   let sortedLogs = event.logs.sort((a, b) => a.sequenceNumber - b.sequenceNumber);

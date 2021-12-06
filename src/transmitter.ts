@@ -2,7 +2,7 @@ import dgram from "dgram";
 import fs from "fs";
 import path from "path";
 
-import { RTPPacket } from "./rtp-packet";
+import { RTPPacket } from "../models/rtp-packet";
 
 const INPUT_FILE = path.resolve(__dirname, "../data/input.ulaw");
 const RECEIVER_PORT = 3456;

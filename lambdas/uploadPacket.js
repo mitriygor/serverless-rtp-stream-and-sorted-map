@@ -1,8 +1,11 @@
+/**
+ * The lambdas uploads received packets to an AWS S3 bucket
+ *
+ * */
+
 const AWS = require('aws-sdk');
 AWS.config.update({
-  region: 'us-east-1',
-  accessKeyId: process.env.ACCESS_KEY_ID,
-  secretAccessKey: process.env.SECRET_KEY
+  region: 'us-east-1', accessKeyId: process.env.ACCESS_KEY_ID, secretAccessKey: process.env.SECRET_KEY
 });
 
 const s3 = new AWS.S3();
@@ -20,7 +23,7 @@ exports.handler = async (event, context) => {
     ACL: 'public-read'
   };
 
-  url=  await s3.getSignedUrlPromise('putObject', s3Params);
+  url = await s3.getSignedUrlPromise('putObject', s3Params);
 
-  return url
+  return url;
 };
