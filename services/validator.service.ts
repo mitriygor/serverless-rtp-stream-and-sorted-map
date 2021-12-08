@@ -7,12 +7,12 @@ import {Constants} from '../configuration/contants';
  * If any discrepancies are detected, reacretion of the file is triggered.
  *
  * */
-export class Validator {
+export class ValidatorService {
     public validate(): void {
         axios.get(Constants.VALIDATOR_ENDPOINT).then((response) => {
-            console.error('Logging::logAppend::response.data:', response.data);
+            console.error('LoggingService::logAppend::response.data:', response.data);
         }).catch((error) => {
-            console.error('Logging::response::error:', error);
+            console.error('LoggingService::response::error:', error);
         });
     }
 }

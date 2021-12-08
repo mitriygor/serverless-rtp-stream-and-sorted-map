@@ -1,9 +1,9 @@
 import fs from 'fs';
 
 import {Constants} from '../configuration/contants';
-import {RTPList} from '../models/rtp-list';
+import SortedMapInterface from '../interfaces/sorted-map.interface';
 import {RTPPacket} from '../models/rtp-packet';
-import {Logging} from './logging';
+import {LoggingService} from './logging.service';
 
 /**
  * The service creates a stream for appending packets to the output file
@@ -11,13 +11,13 @@ import {Logging} from './logging';
  * for clean the output file
  *
  * */
-export class FileProcessor {
+export class FileProcessorService {
     private stream;
     private logging;
 
     constructor() {
         this.stream = fs.createWriteStream(Constants.OUTPUT_FILE, {flags: 'a'});
-        this.logging = new Logging();
+        this.logging = new LoggingService();
     }
 
     /**
@@ -27,7 +27,7 @@ export class FileProcessor {
      */
     public cleanFile(): void {
         fs.truncate(Constants.OUTPUT_FILE, 0, () => {
-            console.log('FileProcessor::cleanFile::done');
+            console.log('FileProcessorService::cleanFile::done');
         });
     }
 
@@ -39,15 +39,15 @@ export class FileProcessor {
      * so if the method is called without this parameter, it will loop through all elements.
      * That's exactly how it is called after the transmission is finished.
      *
-     * @param {RTPList} packets
-     * @param {RTPList} minBufferSize
+     * @param {SortedMapInterface} packets
+     * @param {number} minBufferSize
      */
-    public appendToFile(packets: RTPList, minBufferSize = 0): void {
-        while (packets.sequenceNumbers.length > minBufferSize) {
-            const packet: RTPPacket | undefined = packets.getPacket();
+    public appendToFile(packets: SortedMapInterface<RTPPacket>, minBufferSize = 0): void {
+        while (packets.getMapSize() > minBufferSize) {
+            const packet: RTPPacket | undefined = packets.shiftItem();
             if (packet) {
                 this.stream.write(packet.payload);
-                this.logging.logAppend(packet, packets.sequenceNumbers.length);
+                this.logging.logAppend(packet, packets.getMapSize());
             }
         }
     }

@@ -8,7 +8,7 @@ import {RTPPacket} from '../models/rtp-packet';
  * The service logs data to the cloud, AWS DynamoDB and AWS S3
  *
  * */
-export class Logging {
+export class LoggingService {
 
     /**
      * The method logs packet sequence number and a timestamp.
@@ -24,9 +24,9 @@ export class Logging {
             packetsAmount: packetsAmount,
             timestamp: Date.now()
         }).then((response) => {
-            console.error('Logging::logAppend::response.data:', response.data);
+            console.error('LoggingService::logAppend::response.data:', response.data);
         }).catch((error) => {
-            console.error('Logging::response::error:', error);
+            console.error('LoggingService::response::error:', error);
         });
     }
 
@@ -44,9 +44,9 @@ export class Logging {
             packetsAmount: packetsAmount,
             timestamp: Date.now()
         }).then((response) => {
-            console.log('Logging::logPacket::response.data:', response.data);
+            console.log('LoggingService::logPacket::response.data:', response.data);
         }).catch((error) => {
-            console.error('Logging.logPacket.error:', error);
+            console.error('LoggingService.logPacket.error:', error);
         });
     }
 
@@ -68,15 +68,15 @@ export class Logging {
                         'Content-Type': 'text/plain'
                     }
                 }).then(result => {
-                    console.log('Logging::uploadPacket::put::result:', result);
+                    console.log('LoggingService::uploadPacket::put::result:', result);
                 }).catch(error => {
-                    console.error('Logging::uploadPacket::put::error:', error);
+                    console.error('LoggingService::uploadPacket::put::error:', error);
                 });
             }).catch((error) => {
-                console.error('Logging::uploadPacket::put::error:', error);
+                console.error('LoggingService::uploadPacket::put::error:', error);
             });
         } catch (error) {
-            console.error('Logging::uploadPacket::put::try::error:', error);
+            console.error('LoggingService::uploadPacket::put::try::error:', error);
         }
     }
 
@@ -87,9 +87,9 @@ export class Logging {
      */
     public recreateTable(): void {
         axios.post(Constants.RECREATE_TABLE_ENDPOINT).then((response) => {
-            console.log('Logging::recreateTable::post::response.data', response.data);
+            console.log('LoggingService::recreateTable::post::response.data', response.data);
         }).catch((error) => {
-            console.error('Logging::recreateTable::post::error', error);
+            console.error('LoggingService::recreateTable::post::error', error);
         });
     }
 }

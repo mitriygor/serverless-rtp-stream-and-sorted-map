@@ -33,7 +33,7 @@ the receiver will write an `output.ulaw` file to the `data` directory. The two f
 RTP List is a model which provides advantages of sorted map and priority queue. The model doesn't allow duplicates:
 
 ```
-    public addPacket(packet: RTPPacket): void {
+    public pushItem(packet: RTPPacket): void {
         if (!this.packetsMap[packet.sequenceNumber]) {
             ...
         }
@@ -43,7 +43,7 @@ RTP List is a model which provides advantages of sorted map and priority queue. 
 Lowest priority elements are removed first.
 
 ```
-    public getPacket(): RTPPacket | undefined {
+    public shiftItem(): RTPPacket | undefined {
         if (this.sequenceNumbers.length > 0 && !!this.packetsMap[this.sequenceNumbers[0]]) {
             const packet = this.packetsMap[this.sequenceNumbers[0]];
             ...
@@ -51,12 +51,12 @@ Lowest priority elements are removed first.
     }
 ```
 
-Data in the RTPList is preserved as a map where the `sequenceNumber` is used as a key. Map provides random access 1. At
+Data in the RtpMapModel is preserved as a map where the `sequenceNumber` is used as a key. Map provides random access 1. At
 the same time, for preserving proper order, the `sequenceNUmber` is added to array which is sorted in ascending order on
 each addition.
 
 ```
-    public addPacket(packet: RTPPacket): void {
+    public pushItem(packet: RTPPacket): void {
             ...
             this.sequenceNumbers.sort((a, b) => a - b);
             ...
@@ -66,7 +66,7 @@ each addition.
 ## Receiver
 
 In order to avoid accumulation of all packages in the memory, only small size buffer of packages are preserved in the
-RTPList. Due to the transmitter provides packets out-of-order, the buffer is supposed to be a big enough to assure
+RtpMapModel. Due to the transmitter provides packets out-of-order, the buffer is supposed to be a big enough to assure
 proper order.
 
 Based on running the transmitter, there was found out dispersion of packets is about five, e.g.:
@@ -75,7 +75,7 @@ Based on running the transmitter, there was found out dispersion of packets is a
     643, 642, 645, 644, 646
 ```
 
-therefore, the initial minimum size of the RTPList is set as ten.
+therefore, the initial minimum size of the RtpMapModel is set as ten.
 
 ![Screenshot](images/buffer.gif)
 
@@ -101,9 +101,9 @@ the packets a preserved in the memory.
 
 ![Screenshot](images/sorting.gif)
 
-## Logging, Validation, Fallback
+## LoggingService, Validation, Fallback
 
-### Logging
+### LoggingService
 
 All received packets, — with duplicates and out-of-order, — are logged in the cloud, AWS DynamoDB and AWS S3.
 
@@ -142,16 +142,16 @@ DynamoDB, and result is preserved on the AWS S3 bucket. State machine of the val
 
 `/models`:
 
-- `rtp-list.ts` a data structure in order to preserve packets as a sorted dictionary
+- `rtp-map.model.ts` a data structure in order to preserve packets as a sorted dictionary
 
 - `rtp-packet.ts` contains a utility class that implements encoding and decoding RTP packets
 
 
 `/services`:
 
-- `file-processor.ts` provides basic functionality for processing a file stream. It uses a `fs`
+- `file-processor.service.ts` provides basic functionality for processing a file stream. It uses a `fs`
 
-- `logging.ts` provides logging functionality. Logs could be preserved in AW DynamoDB and S3
+- `logging.service.ts` provides logging functionality. Logs could be preserved in AW DynamoDB and S3
 
 - `validation.ts` triggers validation in order to verify if all packets preserved properly
 

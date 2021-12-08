@@ -1,14 +1,14 @@
 import dgram from 'dgram';
 
 import {Constants} from '../configuration/contants';
-import {RTPList} from '../models/rtp-list';
+import {RtpMapModel} from '../models/rtp-map.model';
 import {RTPPacket} from '../models/rtp-packet';
-import {FileProcessor} from '../services/file-processor';
-import {Logging} from '../services/logging';
+import {FileProcessorService} from '../services/file-processor.service';
+import {LoggingService} from '../services/logging.service';
 
-const logging: Logging = new Logging();
-const packets: RTPList = new RTPList();
-const fileProcessor: FileProcessor = new FileProcessor();
+const packets = new RtpMapModel();
+const logging = new LoggingService();
+const fileProcessor = new FileProcessorService();
 
 let hasPacketsBuffer = false;
 let finalTimeout: NodeJS.Timeout | undefined;
@@ -24,14 +24,14 @@ server.on('message', (msg) => {
     const packet = new RTPPacket(msg);
 
     // adding the packet to the packet list/map
-    packets.addPacket(packet);
+    packets.pushItem(packet);
 
     // logging just received packets and uploading it to S3
-    logging.logPacket(packet, packets.sequenceNumbers.length);
+    logging.logPacket(packet, packets.getMapSize());
     logging.uploadPacket(packet);
 
     // verifies if the buffer is a big enough in order to guarantee proper order
-    if (!hasPacketsBuffer && packets.sequenceNumbers.length > Constants.INITIAL_BUFFER_SIZE) {
+    if (!hasPacketsBuffer && packets.getMapSize() > Constants.INITIAL_BUFFER_SIZE) {
         hasPacketsBuffer = true;
     }
 
