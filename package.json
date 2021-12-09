@@ -17,7 +17,7 @@
     "fix": "npm run fix:prettier && npm run fix:lint",
     "fix:prettier": "prettier --write .",
     "fix:lint": "eslint src --ext .ts --fix",
-    "test": "jest --rootDir src"
+    "test": "jest --rootDir tests"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
