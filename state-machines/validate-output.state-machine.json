@@ -1,5 +1,5 @@
 {
-  "Comment": "A description of my state machine",
+  "Comment": "A state machine for the validation flow",
   "StartAt": "getAppendsLogs",
   "States": {
     "getAppendsLogs": {
@@ -22,22 +22,22 @@
       "Type": "Choice",
       "Choices": [
         {
-          "Variable": "$.results.isValid",
+          "Variable": "$.isValid.isValid",
           "BooleanEquals": false,
-          "Next": "createFile"
+          "Next": "createFileTwo"
         }
       ],
-      "Default": "returnSuccess"
+      "Default": "createFileOne"
     },
-    "returnSuccess": {
+    "createFileOne": {
       "Type": "Task",
       "Resource": ":::",
-      "TimeoutSeconds": 30,
+      "TimeoutSeconds": 300,
       "ResultPath": "$.results.deletionStatus",
       "OutputPath": "$.results",
       "End": true
     },
-    "createFile": {
+    "createFileTwo": {
       "Type": "Task",
       "Resource": ":::",
       "TimeoutSeconds": 300,

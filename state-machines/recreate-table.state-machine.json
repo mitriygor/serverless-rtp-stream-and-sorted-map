@@ -1,5 +1,5 @@
 {
-  "Comment": "A description of my state machine",
+  "Comment": "A state machine for re-creating DynamoDB tables for developing purposes",
   "StartAt": "deleteTable",
   "States": {
     "deleteTable": {
