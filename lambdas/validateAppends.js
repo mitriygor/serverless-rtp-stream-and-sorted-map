@@ -4,8 +4,7 @@
  * */
 
 exports.handler = async (event) => {
-
-  let sortedLogs = event.logs.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
+  let sortedLogs = event.logs.body.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
   let isValid = true;
   const maxLimit = sortedLogs.length - 1;
   let i = 0;
@@ -15,5 +14,5 @@ exports.handler = async (event) => {
     i++;
   }
 
-  return {logs: sortedLogs, isValid: isValid};
+  return {isValid: isValid, logs: sortedLogs};
 };

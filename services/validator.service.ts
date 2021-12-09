@@ -1,5 +1,4 @@
 import axios from 'axios';
-import {Constants} from '../configuration/contants';
 
 /**
  * The service triggers the validation state machine
@@ -8,8 +7,14 @@ import {Constants} from '../configuration/contants';
  *
  * */
 export class ValidatorService {
+    private url: string;
+
+    constructor(url = '') {
+        this.url = url;
+    }
+
     public validate(): void {
-        axios.get(Constants.VALIDATOR_ENDPOINT).then((response) => {
+        axios.get(this.url).then((response) => {
             console.error('LoggingService::logAppend::response.data:', response.data);
         }).catch((error) => {
             console.error('LoggingService::response::error:', error);

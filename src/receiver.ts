@@ -5,10 +5,12 @@ import {RtpMapModel} from '../models/rtp-map.model';
 import {RTPPacket} from '../models/rtp-packet';
 import {FileProcessorService} from '../services/file-processor.service';
 import {LoggingService} from '../services/logging.service';
+import {ValidatorService} from '../services/validator.service';
 
 const packets = new RtpMapModel();
 const logging = new LoggingService<RTPPacket>(Constants.LOG_APPEND_ENDPOINT, Constants.LOG_PACKET_ENDPOINT, Constants.UPLOAD_PACKET_ENDPOINT, Constants.RECREATE_TABLE_ENDPOINT);
 const fileProcessor = new FileProcessorService<RTPPacket>(Constants.OUTPUT_FILE);
+const validator = new ValidatorService(Constants.VALIDATOR_ENDPOINT);
 
 let hasPacketsBuffer = false;
 let finalTimeout: NodeJS.Timeout | undefined;
@@ -48,7 +50,7 @@ server.on('message', (msg) => {
     finalTimeout = setTimeout(() => {
         fileProcessor.appendToFile(packets, Constants.MIN_BUFFER_SIZE, logging.logAppend.bind(logging));
         fileProcessor.closeStream();
-
+        validator.validate();
     }, Constants.NO_MORE_PACKETS_TIMEOUT_MILLIS);
 });
 

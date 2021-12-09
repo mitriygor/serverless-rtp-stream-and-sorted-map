@@ -8,12 +8,14 @@
 const fs = require('fs');
 const AWS = require('aws-sdk');
 AWS.config.update({
-  region: 'us-east-1', accessKeyId: process.env.ACCESS_KEY_ID, secretAccessKey: process.env.SECRET_KEY
+  region: 'us-east-1',
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_KEY
 });
 
 
 const randNumber = Math.floor(Math.random() * 10000);
-const TEMP_FILE = '/tmp/output.ulaw';
+const TEMP_FILE = '/tmp/output_' + randNumber.toString() + '.ulaw';
 
 if (fs.existsSync(TEMP_FILE)) {
   fs.unlinkSync(TEMP_FILE);
@@ -24,8 +26,8 @@ const dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 const stream = fs.createWriteStream(TEMP_FILE, {flags: 'a'});
 
 exports.handler = async (event) => {
-  const minLimit = event.logs[0].sequenceNumber;
-  const maxLimit = event.logs[event.logs.length - 1].sequenceNumber;
+  const minLimit = event.isValid.logs[0].sequenceNumber;
+  const maxLimit = event.isValid.logs[event.isValid.logs.length - 1].sequenceNumber;
 
   for (let i = minLimit; i < maxLimit; i++) {
     const params = {
@@ -45,12 +47,13 @@ exports.handler = async (event) => {
       stream.write(buffer);
     }
   }
+
   stream.end();
 
   const fileContent = fs.readFileSync(TEMP_FILE);
-
   const params = {
-    Bucket: 'packets-replica-s3-bucket', Key: 'output_' + randNumber.toString() + '.ulaw', // File name you want to save as in S3
+    Bucket: 'packets-replica-s3-bucket',
+    Key: 'output_' + randNumber.toString() + '.ulaw', // File name you want to save as in S3
     Body: fileContent
   };
 
