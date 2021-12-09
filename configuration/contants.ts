@@ -8,4 +8,5 @@ export abstract class Constants {
     static readonly RECEIVER_PORT: number = 3456;
     static readonly  NO_MORE_PACKETS_TIMEOUT_MILLIS: number = 100;
     static readonly  INITIAL_BUFFER_SIZE: number = 10;
+    static readonly  MIN_BUFFER_SIZE: number = 0;
 }

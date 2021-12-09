@@ -1,9 +1,6 @@
 import fs from 'fs';
 
-import {Constants} from '../configuration/contants';
 import SortedMapInterface from '../interfaces/sorted-map.interface';
-import {RTPPacket} from '../models/rtp-packet';
-import {LoggingService} from './logging.service';
 
 /**
  * The service creates a stream for appending packets to the output file
@@ -11,13 +8,13 @@ import {LoggingService} from './logging.service';
  * for clean the output file
  *
  * */
-export class FileProcessorService {
+export class FileProcessorService<T extends { payload: Buffer }> {
     private stream;
-    private logging;
+    private path: string;
 
-    constructor() {
-        this.stream = fs.createWriteStream(Constants.OUTPUT_FILE, {flags: 'a'});
-        this.logging = new LoggingService();
+    constructor(path = '') {
+        this.path = path;
+        this.stream = fs.createWriteStream(this.path, {flags: 'a'});
     }
 
     /**
@@ -26,7 +23,8 @@ export class FileProcessorService {
      *
      */
     public cleanFile(): void {
-        fs.truncate(Constants.OUTPUT_FILE, 0, () => {
+
+        fs.truncate(this.path, 0, () => {
             console.log('FileProcessorService::cleanFile::done');
         });
     }
@@ -41,13 +39,20 @@ export class FileProcessorService {
      *
      * @param {SortedMapInterface} packets
      * @param {number} minBufferSize
+     * @param callback
      */
-    public appendToFile(packets: SortedMapInterface<RTPPacket>, minBufferSize = 0): void {
+    public appendToFile(packets: SortedMapInterface<T>, minBufferSize = 0, callback: (packet: T, amount: number) => any): void {
         while (packets.getMapSize() > minBufferSize) {
-            const packet: RTPPacket | undefined = packets.shiftItem();
+
+            const packet: T | undefined = packets.shiftItem();
             if (packet) {
-                this.stream.write(packet.payload);
-                this.logging.logAppend(packet, packets.getMapSize());
+                this.stream.write(packet.payload, () => {
+                    try {
+                        callback(packet, packets.getMapSize());
+                    } catch (e) {
+                        console.error('FileProcessorService::appendToFile::callback:error', e);
+                    }
+                });
             }
         }
     }

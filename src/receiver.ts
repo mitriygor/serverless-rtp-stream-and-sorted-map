@@ -7,8 +7,8 @@ import {FileProcessorService} from '../services/file-processor.service';
 import {LoggingService} from '../services/logging.service';
 
 const packets = new RtpMapModel();
-const logging = new LoggingService();
-const fileProcessor = new FileProcessorService();
+const logging = new LoggingService<RTPPacket>(Constants.LOG_APPEND_ENDPOINT, Constants.LOG_PACKET_ENDPOINT, Constants.UPLOAD_PACKET_ENDPOINT, Constants.RECREATE_TABLE_ENDPOINT);
+const fileProcessor = new FileProcessorService<RTPPacket>(Constants.OUTPUT_FILE);
 
 let hasPacketsBuffer = false;
 let finalTimeout: NodeJS.Timeout | undefined;
@@ -41,12 +41,12 @@ server.on('message', (msg) => {
 
     // processing appending the packets to the file
     if (hasPacketsBuffer) {
-        fileProcessor.appendToFile(packets, Constants.INITIAL_BUFFER_SIZE);
+        fileProcessor.appendToFile(packets, Constants.INITIAL_BUFFER_SIZE, logging.logAppend.bind(logging));
     }
 
     // appending the rest of packets as soon the transmission is finished
     finalTimeout = setTimeout(() => {
-        fileProcessor.appendToFile(packets);
+        fileProcessor.appendToFile(packets, Constants.MIN_BUFFER_SIZE, logging.logAppend.bind(logging));
         fileProcessor.closeStream();
 
     }, Constants.NO_MORE_PACKETS_TIMEOUT_MILLIS);

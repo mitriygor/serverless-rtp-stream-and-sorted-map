@@ -1,25 +1,32 @@
 import axios from 'axios';
 
-import {Constants} from '../configuration/contants';
-import {RTPPacket} from '../models/rtp-packet';
-
-
 /**
  * The service logs data to the cloud, AWS DynamoDB and AWS S3
  *
  * */
-export class LoggingService {
+export class LoggingService<T extends { payload: Buffer, sequenceNumber: number }> {
+    private logAppendEndpoint: string;
+    private logPacketEndpoint: string;
+    private uploadPacketEndpoint: string;
+    private recreateTableEndpoint: string;
+
+    constructor(logAppendEndpoint = '', logPacketEndpoint = '', uploadPacketEndpoint = '', recreateTableEndpoint = '') {
+        this.logAppendEndpoint = logAppendEndpoint;
+        this.logPacketEndpoint = logPacketEndpoint;
+        this.uploadPacketEndpoint = uploadPacketEndpoint;
+        this.recreateTableEndpoint = recreateTableEndpoint;
+    }
 
     /**
      * The method logs packet sequence number and a timestamp.
      * Furthermore, it logs amount of packets in the list on each given moment.
      * It logs packets which were added to the output file
      *
-     * @param {RTPPacket} packet
+     * @param packet
      * @param {number} packetsAmount
      */
-    public logAppend(packet: RTPPacket, packetsAmount = 0): void {
-        axios.post(Constants.LOG_APPEND_ENDPOINT, {
+    public logAppend(packet: T, packetsAmount = 0): void {
+        axios.post(this.logAppendEndpoint, {
             sequenceNumber: packet.sequenceNumber,
             packetsAmount: packetsAmount,
             timestamp: Date.now()
@@ -34,11 +41,11 @@ export class LoggingService {
      * The method logs received packet sequence number, payload and a timestamp.
      * It logs packets right after receiving from the transmitter
      *
-     * @param {RTPPacket} packet
+     * @param packet
      * @param {number} packetsAmount
      */
-    public logPacket(packet: RTPPacket, packetsAmount = 0): void {
-        axios.post(Constants.LOG_PACKET_ENDPOINT, {
+    public logPacket(packet: T, packetsAmount = 0): void {
+        axios.post(this.logPacketEndpoint, {
             sequenceNumber: packet.sequenceNumber,
             payload: packet.payload.toString('binary'),
             packetsAmount: packetsAmount,
@@ -55,11 +62,11 @@ export class LoggingService {
      * Firstly, the method calls an AWS Lambda function in order to receive a signed URL to upload packet to AWS S3
      * And after that, the method makes a request to an endpoint on the signed URL
      *
-     * @param {RTPPacket} packet
+     * @param packet
      */
-    public uploadPacket(packet: RTPPacket): void {
+    public uploadPacket(packet: T): void {
         try {
-            axios.post(Constants.UPLOAD_PACKET_ENDPOINT, {
+            axios.post(this.uploadPacketEndpoint, {
                 fileName: packet.sequenceNumber,
                 fileType: 'txt'
             }).then((response) => {
@@ -86,7 +93,7 @@ export class LoggingService {
      *
      */
     public recreateTable(): void {
-        axios.post(Constants.RECREATE_TABLE_ENDPOINT).then((response) => {
+        axios.post(this.recreateTableEndpoint).then((response) => {
             console.log('LoggingService::recreateTable::post::response.data', response.data);
         }).catch((error) => {
             console.error('LoggingService::recreateTable::post::error', error);
